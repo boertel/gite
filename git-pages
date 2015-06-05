@@ -1,0 +1,13 @@
+#!/bin/bash
+
+GITROOT="$(git rev-parse --show-toplevel)"
+CNAME_FILE=$GITROOT/CNAME
+
+if git branch | grep -q "gh-pages"; then
+    # create: https://<username>.github.io/<repo>
+    URL=$(git config --get remote.origin.url | sed -e "s/^git@github\.com//" -e "s/:/\//" -e s"/\.git$//" -e "s#/\(.*\)/\(.*\)#https://\1.github.io/\2#")
+    if [ -f $CNAME_FILE ]; then
+        URL="http://$(cat $CNAME_FILE)"
+    fi
+    open $URL
+fi
