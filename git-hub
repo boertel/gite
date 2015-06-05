@@ -1,0 +1,101 @@
+#!/bin/bash
+
+function url {
+    echo "`git config --get remote.origin.url | sed -e "s/git@//" -e "s/:/\//" -e s"/\.git//"`"
+}
+
+function current_branch {
+    git rev-parse --abbrev-ref HEAD
+}
+
+while [[ $# > 0 ]]
+do
+    key="$1"
+    if [[ $2 != -* ]]; then
+        value="$2"
+        shift
+    fi
+
+    case $key in
+        -c|--commit)
+            if [[ -z $value ]]; then
+                COMMIT=$(git log --no-merges --pretty=oneline --abbrev-commit -1 origin/$(current_branch) | cut -f 1 -d " ")
+            else
+                COMMIT="$value"
+            fi
+            ;;
+        -g|--background)
+            BACKGROUND=1
+            ;;
+        -o|--compare)
+            if [[ -z $value ]]; then
+                COMPARE=$(current_branch)
+            else
+                COMPARE="$value"
+            fi
+            ;;
+        -r|--pr)
+            if [[ -z $value ]]; then
+                PULLREQUEST=$(current_branch)
+            else
+                PULLREQUEST="$value"
+            fi
+            ;;
+        -i|--issue)
+            if [[ -z $value ]]; then
+                # trick to define ISSUE variable
+                ISSUE="?q="
+            else
+                ISSUE="$value"
+            fi
+            ;;
+        -h)
+            HELP=1
+            echo -e "usage: git hub [options]    open current repository on github.com\n"
+
+            echo -e "Arguments:"
+            echo -e " -c|--commit [<object>]           open at <object> or at the last commit if <object> is empty (ignore merges)"
+            echo -e " -g|--background                  open URL on the background"
+            echo -e " -o|--compare [<branch>]          compare current branch with <branch> or base"
+            echo -e " -r|--pr [<branch>]               create a pull request"
+            echo -e " -i|--issue [N]                   list of issues or issue #N"
+            ;;
+        *)
+            # unknown
+            ;;
+    esac
+    shift
+done
+
+if [[ $HELP = 1 ]]; then
+    exit 0
+fi
+
+BASE=$(url)
+if [[ -n "$BASE" ]]; then
+    BASE=https://$BASE
+    # tree page
+    URL=$BASE/tree/$(current_branch)
+
+    # commit page
+    if [[ -n "$COMMIT" ]]; then
+        URL=$BASE/commit/$COMMIT
+    elif [[ -n "$COMPARE" ]]; then
+        URL=$BASE/compare/$COMPARE
+    elif [[ -n "$PULLREQUEST" ]]; then
+        URL=$BASE/compare/$PULLREQUEST?expand=1
+    elif [[ -n "$ISSUE" ]]; then
+        URL=$BASE/issues/$ISSUE
+    fi
+
+    # action
+    echo $URL
+    if [[ $BACKGROUND = 1 ]]; then
+        open -g $URL
+    else
+        open $URL
+    fi
+else
+    echo "no remote.origin.url defined"
+    exit 1
+fi
