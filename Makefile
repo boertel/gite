@@ -5,4 +5,4 @@ uninstall:$(SRC)
 	rm $(DEST)$<
 
 copy: $(SRC)
-	cp $< $(DEST)
+	cp $? $(DEST)
