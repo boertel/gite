@@ -1,15 +1,18 @@
 #!/bin/bash
 
-if [[ $# = 0 ]]; then
-    echo "usage: git iam <nickname>"
-    exit 1
-fi
-
 SETTINGS_FILE=~/.git-iam
-if [[ -e $SETTINGS_FILE ]]; then
-    if [[ $1 == *@* ]]; then
-        EMAIL=$1
-    else
+WRITE=1
+
+GLOBAL=$(git config --global --get user.email)
+
+
+if [[ -z "$1" ]]; then
+    EMAIL=$(git config --local --get user.email)
+    WRITE=0
+elif [[ $1 == *@* ]]; then
+    EMAIL=$1
+else
+    if [[ -e $SETTINGS_FILE ]]; then
         GREP=$(grep "^$1=\(.*\)$" -- $SETTINGS_FILE)
         if [[ -z $GREP ]]; then
             echo "$1 is not setup in $SETTINGS_FILE"
@@ -17,11 +20,17 @@ if [[ -e $SETTINGS_FILE ]]; then
         else
             EMAIL=$(echo $GREP | sed -e "s/^$1=//g")
         fi
+    else
+        echo "$SETTINGS_FILE doesn't exist."
+        exit 1
     fi
-    echo "This repository is now using: $EMAIL"
-    git config user.email $EMAIL
-else
-    echo "$SETTINGS_FILE doesn't exist."
-    exit 1
 fi
+echo "This repository is now using: $EMAIL"
 
+if [[ $WRITE = 1 ]]; then
+    if [[ "$GLOBAL" = "$EMAIL" ]]; then
+        git config --local --unset user.email
+    else
+        git config --local user.email $EMAIL
+    fi
+fi
