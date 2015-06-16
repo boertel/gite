@@ -1,0 +1,9 @@
+#!/bin/bash
+
+CONFLICTS=$(git status -s | grep "UU" | cut -d " " -f 2)
+
+if [[ -z "$CONFLICTS" ]]; then
+    echo "no conflicts"
+else
+    mvim -p $CONFLICTS
+fi
