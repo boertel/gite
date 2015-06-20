@@ -8,6 +8,9 @@ GLOBAL=$(git config --global --get user.email)
 
 if [[ -z "$1" ]]; then
     EMAIL=$(git config --local --get user.email)
+    if [[ -z "$EMAIL" ]]; then
+        EMAIL=$(git config --global --get user.email)
+    fi
     WRITE=0
 elif [[ $1 == *@* ]]; then
     EMAIL=$1
