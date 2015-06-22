@@ -75,7 +75,12 @@ BASE=$(url)
 if [[ -n "$BASE" ]]; then
     BASE=https://$BASE
     # tree page
-    URL=$BASE/tree/$(current_branch)
+    BRANCH=$(current_branch)
+    if [[ "$BRANCH" == "master" ]]; then
+        URL=$BASE
+    else
+        URL=$BASE/tree/$BRANCH
+    fi
 
     # commit page
     if [[ -n "$COMMIT" ]]; then
