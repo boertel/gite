@@ -44,7 +44,7 @@ do
         -i|--issue)
             if [[ -z $value ]]; then
                 # trick to define ISSUE variable
-                ISSUE="?q="
+                ISSUE="?q=is%3Aissue+is%3Aopen"
             else
                 ISSUE="$value"
             fi
