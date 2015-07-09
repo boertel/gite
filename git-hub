@@ -49,6 +49,10 @@ do
                 ISSUE="$value"
             fi
             ;;
+        --wd)
+            GITROOT="$(git rev-parse --show-toplevel)"
+            WORKING_DIR=$(echo $PWD | sed -e 's#'${GITROOT}'##')
+            ;;
         -h)
             HELP=1
             echo -e "usage: git hub [options]    open current repository on github.com\n"
@@ -76,7 +80,7 @@ if [[ -n "$BASE" ]]; then
     BASE=https://$BASE
     # tree page
     BRANCH=$(current_branch)
-    if [[ "$BRANCH" == "master" ]]; then
+    if [[ "$BRANCH" == "master" && -z "$WORKING_DIR" ]]; then
         URL=$BASE
     else
         URL=$BASE/tree/$BRANCH
@@ -91,6 +95,8 @@ if [[ -n "$BASE" ]]; then
         URL=$BASE/compare/$PULLREQUEST?expand=1
     elif [[ -n "$ISSUE" ]]; then
         URL=$BASE/issues/$ISSUE
+    elif [[ -n "$WORKING_DIR" ]]; then
+        URL=$URL$WORKING_DIR
     fi
 
     # action
