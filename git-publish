@@ -1,0 +1,14 @@
+#!/bin/bash
+
+BRANCH="master"
+PAGES="gh-pages"
+if [[ -n "$1" ]]; then
+    BRANCH=$1
+fi
+
+git checkout $PAGES
+git fetch origin
+git merge origin/$PAGES
+git merge $BRANCH
+git push origin $PAGES
+git checkout $BRANCH
