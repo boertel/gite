@@ -41,6 +41,9 @@ do
                 PULLREQUEST="$value"
             fi
             ;;
+        -s|--silent)
+            SILENT=1
+            ;;
         -i|--issue)
             if [[ -z $value ]]; then
                 # trick to define ISSUE variable
@@ -62,6 +65,7 @@ do
             echo -e " -g|--background                  open URL on the background"
             echo -e " -o|--compare [<branch>]          compare current branch with <branch> or base"
             echo -e " -r|--pr [<branch>]               create a pull request"
+            echo -e " -s|--silent                      don't open the link"
             echo -e " -i|--issue [N]                   list of issues or issue #N"
             ;;
         *)
@@ -101,10 +105,12 @@ if [[ -n "$BASE" ]]; then
 
     # action
     echo $URL
-    if [[ $BACKGROUND = 1 ]]; then
-        open -g $URL
-    else
-        open $URL
+    if [[ $SILENT != 1 ]]; then
+        if [[ $BACKGROUND = 1 ]]; then
+            open -g $URL
+        else
+            open $URL
+        fi
     fi
 else
     echo "no remote.origin.url defined"
