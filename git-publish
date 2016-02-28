@@ -6,9 +6,16 @@ if [[ -n "$1" ]]; then
     BRANCH=$1
 fi
 
-git checkout $PAGES
-git fetch origin
-git merge origin/$PAGES
-git merge $BRANCH
+git rev-parse --verify $PAGES >/dev/null 2>&1
+
+if [[ $? != 0 ]];then
+    git branch $PAGES
+else
+    git checkout $PAGES
+    git fetch origin
+    git merge origin/$PAGES
+    git merge $BRANCH
+fi
+
 git push origin $PAGES
 git checkout $BRANCH
