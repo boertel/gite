@@ -23,3 +23,4 @@ if [[ $? != 0 ]]; then
 fi
 
 git tag -a $NEXT_VERSION -m "$MESSAGE"
+echo $NEXT_VERSION
