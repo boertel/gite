@@ -1,8 +1,5 @@
 #!/bin/bash
 
-function url {
-    echo "`git config --get remote.origin.url | sed -e "s/git@//" -e "s/:/\//" -e s"/\.git//"`"
-}
 
 function current_branch {
     git rev-parse --abbrev-ref HEAD
@@ -79,7 +76,7 @@ if [[ $HELP = 1 ]]; then
     exit 0
 fi
 
-BASE=$(url)
+BASE=$(git name)
 if [[ -n "$BASE" ]]; then
     BASE=https://$BASE
     # tree page
