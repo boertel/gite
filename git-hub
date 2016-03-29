@@ -76,7 +76,7 @@ if [[ $HELP = 1 ]]; then
     exit 0
 fi
 
-BASE=$(git name)
+BASE=$(git url)
 if [[ -n "$BASE" ]]; then
     BASE=https://$BASE
     # tree page
