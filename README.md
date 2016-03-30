@@ -10,13 +10,20 @@
 
 ```git uu``` : open all conflicted files
 
+```git release``` : 
+
+```git name``` : display <username>/<repository> for your current repository
+
+```git url``` : display GitHub URL for your current repository
+
+
 ## Install
 
 Copy the files to ```/usr/local/bin```
 ```sh
-> make copy
+> make
 ```
 
 ```sh
-> make uninstall
+> make clean
 ```
