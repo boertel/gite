@@ -12,7 +12,7 @@ if [[ $# < 1 ]]; then
     exit 1
 fi
 
-VERSION=$(git describe --abbrev=0 --match="v*" | tr -d "v")
+VERSION=$(git describe --abbrev=0 --tags --match="v*" | tr -d "v")
 
 NEXT_VERSION=v$(bump $NEXT $VERSION)
 if [[ $? != 0 ]]; then
