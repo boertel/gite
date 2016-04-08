@@ -1,0 +1,26 @@
+#!/bin/bash
+
+GITROOT="$(git rev-parse --show-toplevel)"
+NAME="$(git name)"
+
+function open_link() {
+    echo $1
+    open --background $1
+}
+
+
+if [ -e "$GITROOT/circle.yml" ]; then
+    CIRCLECI="https://circleci.com/gh/$NAME"
+    open_link $CIRCLECI
+fi
+
+#if [ -e "$GITROOT/.opbeat" ]; then
+#fi
+OPBEAT="https://opbeat.com/$NAME"
+open_link $OPBEAT
+
+HEROKU_NAME=$(git remote -v | grep "heroku" | cut -f 2 | head -n 1 | sed -e "s#https://git.heroku.com/\(.*\)\.git (fetch)#\1#")
+if [ -n "$HEROKU_NAME" ]; then
+    HEROKU="https://dashboard.heroku.com/apps/$HEROKU_NAME/resources"
+    open_link $HEROKU
+fi
