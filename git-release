@@ -28,9 +28,4 @@ fi
 
 echo $NEXT_VERSION
 
-GITROOT="$(git rev-parse --show-toplevel)"
-GIT_HOOK_POST_RELEASE=$GITROOT/.git/hooks/post-release
-
-if [ -f "$GIT_HOOK_POST_RELEASE" ]; then
-    $GIT_HOOK_POST_RELEASE $NEXT_VERSION
-fi
+git hook post-release $NEXT_VERSION

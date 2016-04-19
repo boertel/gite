@@ -1,0 +1,16 @@
+#!/bin/bash
+
+GITROOT="$(git rev-parse --show-toplevel)"
+HOOK_NAME=$1
+
+if [[ -z "$HOOK_NAME" ]]; then
+    PATHNAME=$GITROOT/.git/hooks
+    find $PATHNAME ! -name "*.sample" ! -path $PATHNAME -exec basename {} \;
+    exit 0
+fi
+
+GIT_HOOK=$GITROOT/.git/hooks/$HOOK_NAME
+
+if [ -f "$GIT_HOOK" ]; then
+    $GIT_HOOK ${@: -1}
+fi
