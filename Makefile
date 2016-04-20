@@ -5,5 +5,4 @@ copy: $(SRC)
 	cp $? $(DEST)
 
 clean:$(SRC)
-	rm $(DEST)$<
-
+	rm $(DEST)$?

@@ -3,33 +3,23 @@
 NEXT=$1
 MESSAGE=$2
 
-if [[ -z "$MESSAGE" ]]; then
-    MESSAGE=$(git log -n 1 --no-merges --pretty=%s)
-fi
-
 if [[ $# < 1 ]]; then
     echo -e "usage: git release increment:patch|minor|major|init|x.x.x [message]"
     exit 1
 fi
 
-VERSION=$(git describe --abbrev=0 --tags --match="v*" &> /dev/null)
-echo "exit: $?"
-# couldn't find a tag corresponding to a version
-if [[ $? != 0 ]]; then
-    # if increment is init or x.x.x, let go through, otherwise exit
-    if [[ "$NEXT" == "patch" || "$NEXT" == "minor" || "$NEXT" == "init" ]]; then
-        echo "Couldn't find a version in this project. Run git release init or git release x.x.x to start"
-        exit 1
-    fi
-fi
-
-VERSION=$(echo $VERSION | tr -d "v")
+LAST_VERSION=$(git describe --abbrev=0 --tags --match="v*" 2> /dev/null)
+VERSION=$(echo $LAST_VERSION | tr -d "v")
 
 NEXT_VERSION=v$(bump $NEXT $VERSION)
 if [[ $? != 0 ]]; then
-    echo "Unable to define new version. Make sure you define your version in the command or if it's defined through your tags."
     exit 1
 fi
+
+if [[ -z "$MESSAGE" ]]; then
+    MESSAGE=$(git log $LAST_VERSION..HEAD --no-merges --oneline | cut -d " " -f "2-" | sed -e 's/^/\\n- /')
+fi
+
 
 git tag -a $NEXT_VERSION -m "$MESSAGE"
 if [[ $? != 0 ]]; then
@@ -40,3 +30,12 @@ fi
 echo $NEXT_VERSION
 
 git hook post-release $NEXT_VERSION
+
+if [ -n "$GITHUB_TOKEN" ]; then
+    REPO=$(git name)
+    BODY="Release of version $NEXT_VERSION\n\n$MESSAGE"
+    API_JSON='{"tag_name": "'$NEXT_VERSION'","target_commitish": "master","name": "'$NEXT_VERSION'","body": "'$BODY'","draft": false,"prerelease": false}'
+    echo $API_JSON
+    curl --data "$API_JSON" "https://api.github.com/repos/$REPO/releases?access_token=$GITHUB_TOKEN"
+fi
+
