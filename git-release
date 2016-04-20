@@ -8,11 +8,22 @@ if [[ -z "$MESSAGE" ]]; then
 fi
 
 if [[ $# < 1 ]]; then
-    echo -e "usage: git release increment:patch|minor|major|x.x.x [message]"
+    echo -e "usage: git release increment:patch|minor|major|init|x.x.x [message]"
     exit 1
 fi
 
-VERSION=$(git describe --abbrev=0 --tags --match="v*" | tr -d "v")
+VERSION=$(git describe --abbrev=0 --tags --match="v*" &> /dev/null)
+echo "exit: $?"
+# couldn't find a tag corresponding to a version
+if [[ $? != 0 ]]; then
+    # if increment is init or x.x.x, let go through, otherwise exit
+    if [[ "$NEXT" == "patch" || "$NEXT" == "minor" || "$NEXT" == "init" ]]; then
+        echo "Couldn't find a version in this project. Run git release init or git release x.x.x to start"
+        exit 1
+    fi
+fi
+
+VERSION=$(echo $VERSION | tr -d "v")
 
 NEXT_VERSION=v$(bump $NEXT $VERSION)
 if [[ $? != 0 ]]; then
