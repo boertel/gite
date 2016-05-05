@@ -20,6 +20,7 @@ if [[ -z "$MESSAGE" ]]; then
     MESSAGE=$(git log $LAST_VERSION..HEAD --no-merges --oneline | cut -d " " -f "2-" | sed -e 's/^/\\n- /')
 fi
 
+git hook pre-release $NEXT_VERSION
 
 git tag -a $NEXT_VERSION -m "$MESSAGE"
 if [[ $? != 0 ]]; then
