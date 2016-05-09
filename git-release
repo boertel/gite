@@ -21,6 +21,10 @@ if [[ -z "$MESSAGE" ]]; then
 fi
 
 git hook pre-release $NEXT_VERSION
+if [[ $? != 0 ]]; then
+    echo "exit because pre-release exit with $?"
+    exit 1
+fi
 
 git tag -a $NEXT_VERSION -m "$MESSAGE"
 if [[ $? != 0 ]]; then
