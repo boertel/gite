@@ -1,26 +1,54 @@
 #!/bin/bash
 
-GITROOT="$(git rev-parse --show-toplevel)"
+GITROOT="$(git root)"
 NAME="$(git name)"
 
-function open_link() {
-    echo $1
-    open --background $1
+
+function link_circleci {
+    if [ -e "$GITROOT/circle.yml" ]; then
+        echo "https://circleci.com/gh/$NAME"
+    fi
+}
+
+function link_opbeat {
+    #if [ -e "$GITROOT/.opbeat" ]; then
+    #fi
+    echo "https://opbeat.com/$NAME"
+}
+
+function link_heroku {
+    HEROKU_NAME=$(git remote -v | grep "heroku" | cut -f 2 | head -n 1 | sed -e "s#https://git.heroku.com/\(.*\)\.git (fetch)#\1#")
+    if [ -n "$HEROKU_NAME" ]; then
+       echo "https://dashboard.heroku.com/apps/$HEROKU_NAME/resources"
+    fi
 }
 
 
-if [ -e "$GITROOT/circle.yml" ]; then
-    CIRCLECI="https://circleci.com/gh/$NAME"
-    open_link $CIRCLECI
+if [[ $# == 0 ]]; then
+    SERVICES=("opbeat" "heroku" "circleci")
+else
+    SERVICES="$@"
 fi
 
-#if [ -e "$GITROOT/.opbeat" ]; then
-#fi
-OPBEAT="https://opbeat.com/$NAME"
-open_link $OPBEAT
+LINKS=""
 
-HEROKU_NAME=$(git remote -v | grep "heroku" | cut -f 2 | head -n 1 | sed -e "s#https://git.heroku.com/\(.*\)\.git (fetch)#\1#")
-if [ -n "$HEROKU_NAME" ]; then
-    HEROKU="https://dashboard.heroku.com/apps/$HEROKU_NAME/resources"
-    open_link $HEROKU
-fi
+for SERVICE in ${SERVICES[@]}; do
+    echo "service: $SERVICE"
+    case $SERVICE in
+        opbeat)
+            LINKS="$LINKS $(link_opbeat)"
+            ;;
+        heroku)
+            LINKS="$LINKS $(link_heroku)"
+            ;;
+        circleci)
+            LINKS="$LINKS $(link_circleci)"
+            ;;
+        *)
+            echo "$SERVICE not found"
+            ;;
+    esac
+done
+
+echo $LINKS
+open -g $LINKS

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-GITROOT="$(git rev-parse --show-toplevel)"
+GITROOT="$(git root)"
 CNAME_FILE=$GITROOT/CNAME
 
 PATHNAME=/$1

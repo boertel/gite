@@ -1,6 +1,6 @@
 #!/bin/bash
 
-GITROOT="$(git rev-parse --show-toplevel)"
+GITROOT="$(git root)"
 HOOK_NAME=$1
 
 if [[ -z "$HOOK_NAME" ]]; then
