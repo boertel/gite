@@ -51,4 +51,4 @@ for SERVICE in ${SERVICES[@]}; do
 done
 
 echo $LINKS
-open -g $LINKS
+open $LINKS
