@@ -12,5 +12,5 @@ fi
 GIT_HOOK=$GITROOT/.git/hooks/$HOOK_NAME
 
 if [ -f "$GIT_HOOK" ]; then
-    $GIT_HOOK ${@: -1}
+    $GIT_HOOK ${@:2}
 fi
