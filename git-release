@@ -16,11 +16,11 @@ if [[ $? != 0 ]]; then
     exit 1
 fi
 
-if [[ -z "$MESSAGE" ]]; then
-    MESSAGE=$(git log $LAST_VERSION..HEAD --no-merges --oneline | cut -d " " -f "2-" | sed -e 's/^/\\n- /')
+if [[ ( -z "$MESSAGE" ) || ( "$MESSAGE" == "auto" ) ]]; then
+    MESSAGE=$(git log $LAST_VERSION..HEAD --no-merges --oneline | cut -d " " -f "2-" | sed -e 's/^/\n- /')
 fi
 
-git hook pre-release $NEXT_VERSION $LAST_VERSION
+git hook pre-release $NEXT_VERSION $LAST_VERSION ${@:3}
 if [[ $? != 0 ]]; then
     echo "exit because pre-release exit with $?"
     exit 1
