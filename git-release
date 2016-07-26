@@ -20,7 +20,7 @@ if [[ -z "$MESSAGE" ]]; then
     MESSAGE=$(git log $LAST_VERSION..HEAD --no-merges --oneline | cut -d " " -f "2-" | sed -e 's/^/\\n- /')
 fi
 
-git hook pre-release $NEXT_VERSION
+git hook pre-release $NEXT_VERSION $LAST_VERSION
 if [[ $? != 0 ]]; then
     echo "exit because pre-release exit with $?"
     exit 1
@@ -34,7 +34,7 @@ fi
 
 echo $NEXT_VERSION
 
-git hook post-release $NEXT_VERSION
+git hook post-release $NEXT_VERSION $LAST_VERSION
 
 if [ -n "$GITHUB_TOKEN" ]; then
     REPO=$(git name)
