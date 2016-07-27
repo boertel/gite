@@ -17,7 +17,7 @@ if [[ $? != 0 ]]; then
 fi
 
 if [[ ( -z "$MESSAGE" ) || ( "$MESSAGE" == "auto" ) ]]; then
-    MESSAGE=$(git log $LAST_VERSION..HEAD --no-merges --oneline | cut -d " " -f "2-" | sed -e 's/^/\n- /')
+    MESSAGE=$(git log $LAST_VERSION..HEAD --no-merges --oneline | cut -d " " -f "2-" | sed -e 's/^/- /')
 fi
 
 git hook pre-release $NEXT_VERSION $LAST_VERSION ${@:3}
