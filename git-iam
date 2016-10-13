@@ -6,15 +6,25 @@ WRITE=1
 GLOBAL=$(git config --global --get user.email)
 
 
+function read_settings {
+    GREP=$(grep "\(.*\)=$1" -- $SETTINGS_FILE)
+    USERNAME=$(echo $GREP | sed -e "s/=$1//g")
+    echo $USERNAME
+}
+
+
 if [[ -z "$1" ]]; then
+    # no arguments. who am i on the repo? local > global (read)
     EMAIL=$(git config --local --get user.email)
     if [[ -z "$EMAIL" ]]; then
         EMAIL=$(git config --global --get user.email)
     fi
     WRITE=0
 elif [[ $1 == *@* ]]; then
+    # write with an email address
     EMAIL=$1
 else
+    # write with settings file
     if [[ -e $SETTINGS_FILE ]]; then
         GREP=$(grep "^$1=\(.*\)$" -- $SETTINGS_FILE)
         if [[ -z $GREP ]]; then
@@ -28,8 +38,11 @@ else
         exit 1
     fi
 fi
-echo "This repository is now using: $EMAIL"
 
+USERNAME=$(read_settings $EMAIL)
+echo "This repository is now using: $EMAIL ($USERNAME)"
+
+# do the actual write on git
 if [[ $WRITE = 1 ]]; then
     if [[ "$GLOBAL" = "$EMAIL" ]]; then
         git config --local --unset user.email
