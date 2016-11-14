@@ -18,17 +18,18 @@ while [[ $# > 0 ]]; do
     shift
 done
 
-
+OPTIONS=()
 if [[ $REMOTE = 1 ]]; then
-    BRANCHES=$(git branch -r | cut -d " " -f 2,3)
-else
-    BRANCHES=$(git branch | cut -d " " -f 2,3)
+    OPTIONS=(-r)
 fi
 
 if [[ -n "$EXPR" ]]; then
-    BRANCHES=$(echo $BRANCHES | grep $EXPR)
+    BRANCHES=$(git branch "${OPTIONS[@]}" | grep "$EXPR")
+else
+    BRANCHES=$(git branch "${OPTIONS[@]}")
 fi
 
+BRANCHES=$(echo "$BRANCHES" | cut -d " " -f 2,3)
 
 N=0
 for i in $BRANCHES ; do
@@ -39,5 +40,7 @@ done
 
 echo -n "Checkout to branch #: "
 read choice
+
+echo -e "switch to \x1B[33m${BRANCHES[$choices]}\x1B[0m"
 
 git checkout ${BRANCHES[$choice]}
