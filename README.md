@@ -8,7 +8,7 @@
 
 ```git monitor [service]``` : open monitoring service such as heroku, opbeat or circle CI on your browser
 
-```git name``` : display <username>/<repository> for your current repository
+```git name``` : display \<username\>/\<repository\> for your current repository
 
 ```git pages``` : open github pages either ```https://<username>.github.io/<repo>``` or your own domain detecting ```CNAME``` file
 
