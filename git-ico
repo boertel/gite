@@ -1,20 +1,43 @@
 #!/bin/bash
 
-N=0
-if [[ "$1" == "-r" ]]; then
-    BRANCH=`git branch -r | cut -d ' ' -f 2,3`
+# usage: git ico [-r|--remote] [expression]
+
+REMOTE=0
+
+while [[ $# > 0 ]]; do
+    key="$1"
+
+    case $key in
+        -r|--remote)
+            REMOTE=1
+            ;;
+        *)
+            EXPR=$1
+            ;;
+    esac
+    shift
+done
+
+
+if [[ $REMOTE = 1 ]]; then
+    BRANCHES=$(git branch -r | cut -d " " -f 2,3)
 else
-    BRANCH=`git branch | cut -d ' ' -f 2,3`
+    BRANCHES=$(git branch | cut -d " " -f 2,3)
 fi
 
-for i in $BRANCH ; do
+if [[ -n "$EXPR" ]]; then
+    BRANCHES=$(echo $BRANCHES | grep $EXPR)
+fi
+
+
+N=0
+for i in $BRANCHES ; do
       BRANCHES[$N]="$i"
       echo "$N = $i"
   let "N= $N + 1"
 done
 
 echo -n "Checkout to branch #: "
-read b
+read choice
 
-# TODO run: `git checkout -b origin/branch branch` if -r
-git checkout ${BRANCHES[$b]}
+git checkout ${BRANCHES[$choice]}
