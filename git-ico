@@ -1,0 +1,20 @@
+#!/bin/bash
+
+N=0
+if [[ "$1" == "-r" ]]; then
+    BRANCH=`git branch -r | cut -d ' ' -f 2,3`
+else
+    BRANCH=`git branch | cut -d ' ' -f 2,3`
+fi
+
+for i in $BRANCH ; do
+      BRANCHES[$N]="$i"
+      echo "$N = $i"
+  let "N= $N + 1"
+done
+
+echo -n "Checkout to branch #: "
+read b
+
+# TODO run: `git checkout -b origin/branch branch` if -r
+git checkout ${BRANCHES[$b]}
