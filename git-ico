@@ -41,6 +41,6 @@ done
 echo -n "Checkout to branch #: "
 read choice
 
-echo -e "switch to \x1B[33m${BRANCHES[$choices]}\x1B[0m"
+echo -e "switch to \x1B[33m${BRANCHES[$choice]}\x1B[0m"
 
 git checkout ${BRANCHES[$choice]}
