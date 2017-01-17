@@ -3,7 +3,7 @@
 SETTINGS_FILE=~/.git-iam
 WRITE=1
 
-GLOBAL=$(git config --global --get user.email)
+GLOBAL=$(git config --global user.email)
 
 
 function read_settings {
@@ -15,10 +15,7 @@ function read_settings {
 
 if [[ -z "$1" ]]; then
     # no arguments. who am i on the repo? local > global (read)
-    EMAIL=$(git config --local --get user.email)
-    if [[ -z "$EMAIL" ]]; then
-        EMAIL=$(git config --global --get user.email)
-    fi
+    EMAIL=$(git config user.email)
     WRITE=0
 elif [[ $1 == *@* ]]; then
     # write with an email address
