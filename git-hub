@@ -16,7 +16,7 @@ do
     case $key in
         -c|--commit)
             if [[ -z $value ]]; then
-                COMMIT=$(git log --no-merges --pretty=oneline --abbrev-commit -1 origin/$(current_branch) | cut -f 1 -d " ")
+                COMMIT="$(git log --no-merges --pretty=oneline -1 $(current_branch) | cut -f 1 -d " ")"
             else
                 COMMIT="$value"
             fi
@@ -77,6 +77,10 @@ if [[ $HELP = 1 ]]; then
 fi
 
 BASE=$(git url)
+
+IS_GITHUB=$(git remote -v | grep "github.com")
+IS_BITBUCKET=$(git remote -v | grep "bitbucket.org")
+
 if [[ -n "$BASE" ]]; then
     BASE=https://$BASE
     # tree page
@@ -89,11 +93,23 @@ if [[ -n "$BASE" ]]; then
 
     # commit page
     if [[ -n "$COMMIT" ]]; then
-        URL=$BASE/commit/$COMMIT
+        if [[ -n "$IS_GITHUB" ]]; then
+            URL=$BASE/commit/$COMMIT
+        elif [[ -n "$IS_BITBUCKET" ]]; then
+            URL=$BASE/src/$COMMIT
+        fi
     elif [[ -n "$COMPARE" ]]; then
-        URL=$BASE/compare/$COMPARE
+        if [[ -n "$IS_GITHUB" ]]; then
+            URL=$BASE/compare/$COMPARE
+        elif [[ -n "$IS_BITBUCKET" ]]; then
+            URL=$BASE/pull-requests/new
+        fi
     elif [[ -n "$PULLREQUEST" ]]; then
-        URL=$BASE/compare/$PULLREQUEST?expand=1
+        if [[ -n "$IS_GITHUB" ]]; then
+            URL="$BASE/compare/$PULLREQUEST?expand=1"
+        elif [[ -n "$IS_BITBUCKET" ]]; then
+            URL="$BASE/pull-requests/new?source=$BRANCH&dest=feature/r1_release_integration"
+        fi
     elif [[ -n "$ISSUE" ]]; then
         URL=$BASE/issues/$ISSUE
     elif [[ -n "$WORKING_DIR" ]]; then
