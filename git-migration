@@ -1,0 +1,28 @@
+#!/bin/bash
+
+PATTERN="$1"
+
+function has_changed {
+    git ls-files -m -- "$1"
+}
+
+function added_to_index {
+    git diff --cached --name-only -- "$1"
+}
+
+for FILENAME in $(git grep -l "$PATTERN"); do
+    if [[ -z "$(added_to_index "$FILENAME")" ]]; then
+        COMMAND="$EDITOR +/\"$PATTERN\" \"$FILENAME\""
+        echo "$COMMAND"
+        eval "$COMMAND"
+
+        # is FILENAME [M]odified in red
+        if [[ -n "$(has_changed "$FILENAME")" ]]; then
+            ADD="git add \"$FILENAME\""
+            echo "$ADD"
+            eval "$ADD"
+        fi
+    else
+        echo "$FILENAME has already being updated."
+    fi
+done
