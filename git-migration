@@ -1,6 +1,10 @@
 #!/bin/bash
 
 PATTERN="$1"
+PATHSPEC="$2"
+if [[ -z "$PATHSPEC" ]]; then
+    PATHSPEC="."
+fi
 
 function has_changed {
     git ls-files -m -- "$1"
@@ -10,7 +14,7 @@ function added_to_index {
     git diff --cached --name-only -- "$1"
 }
 
-for FILENAME in $(git grep -l "$PATTERN"); do
+for FILENAME in $(git grep -l "$PATTERN" -- "$PATHSPEC"); do
     if [[ -z "$(added_to_index "$FILENAME")" ]]; then
         COMMAND="$EDITOR +/\"$PATTERN\" \"$FILENAME\""
         echo "$COMMAND"
