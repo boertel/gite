@@ -1,0 +1,67 @@
+#!/bin/bash
+
+set -o
+
+REPO=$(git name)
+NAME=$(echo "$REPO" | cut -d "/" -f "2-")
+
+GITHUB_URL="https://$(git url)"
+GITROOT="$(git root)"
+
+VERSION=$1
+if [[ -z "$VERSION" ]]; then
+    VERSION="latest"
+fi
+
+function config {
+    BREW_FILE=$GITROOT/.brew
+    # default value
+    VALUE=$2
+    if [ -f "$BREW_FILE" ]; then
+        FOUND=$(grep -i "^$1=" -- $BREW_FILE)
+        # found the config in the file
+        if [[ $? == 0 ]]; then
+            VALUE=$(echo "$FOUND" | cut -d "=" -f "2-")
+        fi
+    fi
+    echo $VALUE
+}
+
+
+TARBALL_URL="$GITHUB_URL/archive/$VERSION.tar.gz"
+
+SHA=$(curl -Ls $TARBALL_URL | openssl dgst -sha256 | cut -d " " -f 2)
+
+CLEAN_NAME="$(tr -d "-" <<< $NAME)"
+NAME="$(tr '[:lower:]' '[:upper:]' <<< ${CLEAN_NAME:0:1})${CLEAN_NAME:1}"
+NAME=$(config "name" $NAME)
+DESCRIPTION=$(config "description")
+HOMEPAGE=$(config "homepage" $GITHUB_URL)
+URL=$TARBALL_URL
+HEAD=$GITHUB_URL".git"
+INSTALL=$(config "install")
+
+if [[ -z "$INSTALL" ]]; then
+    # try to infer what to do
+    if [[ -s $GITROOT/Makefile ]]; then
+        INSTALL="system make"
+    fi
+fi
+
+TEMPLATE=$(config "template")
+
+cat << EOF | m4 -DNAME="$NAME" -DDESCRIPTION="$DESCRIPTION" -DHOMEPAGE="$HOMEPAGE" -DURL="$URL" -DHEAD="$HEAD" -DINSTALL="$INSTALL" -DSHA="$SHA"
+class NAME < Formula
+    desc "DESCRIPTION"
+    homepage "HOMEPAGE"
+    url "URL"
+    sha256 "SHA"
+    head "HEAD"
+
+    bottle :unneeded
+
+    def install
+        INSTALL
+    end
+end
+EOF

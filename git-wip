@@ -1,0 +1,10 @@
+#!/bin/bash
+
+BEST_EDITOR=$EDITOR
+if [[ -n "$GEDITOR" ]]; then
+    BEST_EDITOR=$GEDITOR
+fi
+
+FILENAMES=$(git status -s | sed s/^...//)
+
+$BEST_EDITOR -p $FILENAMES
