@@ -1,0 +1,9 @@
+#!/bin/bash
+
+shopt -s nocasematch
+
+LAST_COMMIT_MESSAGE=$(git log -1 --format="%s")
+if [[ "$LAST_COMMIT_MESSAGE" =~ ^WIP ]]; then
+    echo "Work in Progress. git commit --amend to remove WIP mention on the commit message."
+    exit 1
+fi
