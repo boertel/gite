@@ -108,7 +108,7 @@ if [[ -n "$BASE" ]]; then
         if [[ -n "$IS_GITHUB" ]]; then
             URL="$BASE/compare/$PULLREQUEST?expand=1"
         elif [[ -n "$IS_BITBUCKET" ]]; then
-            URL="$BASE/pull-requests/new?source=$BRANCH&dest=feature/r1_release_integration"
+            URL="$BASE/pull-requests/new?source=$BRANCH&dest=develop"
         fi
     elif [[ -n "$ISSUE" ]]; then
         URL=$BASE/issues/$ISSUE
