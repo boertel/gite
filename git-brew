@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -o
-
 REPO=$(git name)
 NAME=$(echo "$REPO" | cut -d "/" -f "2-")
 
