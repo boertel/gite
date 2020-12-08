@@ -1,6 +1,11 @@
 #!/bin/bash
 
 PATTERN="$1"
+if [[ -z "$PATTERN" ]]; then
+    echo "git migration <pattern> [<path>]"
+    exit 1
+fi
+
 PATHSPEC="$2"
 if [[ -z "$PATHSPEC" ]]; then
     PATHSPEC="."
