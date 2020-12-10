@@ -67,7 +67,6 @@ elif [[ "$GIT_HOST" == "gitlab.com" && -n "$GITLAB_TOKEN" ]]; then
     URL="https://gitlab.com/api/v4/projects/$PROJECT_ID/releases"
     if ! curl --fail --request POST \
         --url "$URL" \
-        --header "Accept: application/vnd.github.v3+json" \
         --header "Content-Type: application/json" \
         --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
         --data "$DATA"; then
