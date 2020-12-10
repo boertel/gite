@@ -8,4 +8,9 @@ if [[ -z "$NEXT_VERSION" ]]; then
     echo "not creating formula without specific version"
     exit 1
 fi
-cd $GIT_ROOT && git brew "$1" > ~/Code/homebrew-tap/$NAME.rb
+
+HOMEBREW_TAP="~/Code/homebrew-tap"
+
+cd $GIT_ROOT && git brew "$1" > $HOMEBREW_TAP/$NAME.rb
+
+cd $HOMEBREW_TAP && git add -A && git commit -m "Bump $NAME to $NEXT_VERSION" && git push
