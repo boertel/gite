@@ -59,7 +59,7 @@ if [[ "$GIT_HOST" == "github.com" && -n "$GITHUB_TOKEN" ]]; then
         exit 2
     fi
 elif [[ "$GIT_HOST" == "gitlab.com" && -n "$GITLAB_TOKEN" ]]; then
-    if [[ -n "$GITLAB_PROJECT_ID" ]]; then
+    if [[ -z "$GITLAB_PROJECT_ID" ]]; then
         echo "Missing GITLAB_PROJECT_ID environment variable"
         exit 2
     fi
