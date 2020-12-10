@@ -9,7 +9,7 @@ if [[ -z "$NEXT_VERSION" ]]; then
     exit 1
 fi
 
-HOMEBREW_TAP="~/Code/homebrew-tap"
+HOMEBREW_TAP="$HOME/Code/homebrew-tap"
 
 cd $GIT_ROOT && git brew "$1" > $HOMEBREW_TAP/$NAME.rb
 
