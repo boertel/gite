@@ -1,0 +1,11 @@
+#!/bin/bash
+
+GIT_ROOT=$(git root)
+NAME=$(git name | cut -d "/" -f 2)
+
+NEXT_VERSION="$1"
+if [[ -z "$NEXT_VERSION" ]]; then
+    echo "not creating formula without specific version"
+    exit 1
+fi
+cd $GIT_ROOT && git brew "$1" > ~/Code/homebrew-tap/$NAME.rb

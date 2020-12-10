@@ -34,22 +34,34 @@ if [[ $? != 0 ]]; then
     exit 1
 fi
 
+git push --follow-tags
+
 echo "$NEXT_VERSION"
 
 git hook post-release "$NEXT_VERSION" "$LAST_VERSION"
 
+
+BODY="Release of version $NEXT_VERSION"
+if [[ -n "$MESSAGE" ]]; then
+    BODY="$BODY\n\n$MESSAGE"
+fi
+NAME="$NEXT_VERSION"
+REF="master"
+
 GIT_HOST=$(git host)
-BODY="Release of version $NEXT_VERSION\n\n$MESSAGE"
-NAME="$VERSION"
 if [[ "$GIT_HOST" == "github.com" && -n "$GITHUB_TOKEN" ]]; then
     REPO=$(git name)
-    DATA='{"tag_name": "'$NEXT_VERSION'","target_commitish": "master","name": "'$NAME'","body": "'$BODY'","draft": false,"prerelease": false}'
+    DATA='{"tag_name": "'$NEXT_VERSION'", "target_commitish": "'$REF'", "name": "'$NAME'", "body": "'$BODY'", "draft": false, "prerelease": false}'
     curl --request POST \
         --url "https://api.github.com/repos/$REPO/releases" \
         --header "Content-Type: application/json" \
         --header "Authentication: token $GITHUB_TOKEN" \
         --data "$DATA"
 elif [[ "$GIT_HOST" == "gitlab.com" && -n "$GITLAB_TOKEN" ]]; then
+    if [[ -n "$GITLAB_PROJECT_ID" ]]; then
+        echo "Missing GITLAB_PROJECT_ID environment variable"
+        exit 2
+    fi
     DATA='{"name": "'$NAME'", "tag_name": "'$NEXT_VERSION'", "description": "'$BODY'", "ref": "'$REF'" }'
     URL="https://gitlab.com/api/v4/projects/$PROJECT_ID/releases"
     curl --request POST \

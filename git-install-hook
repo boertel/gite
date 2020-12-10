@@ -1,0 +1,18 @@
+#!/bin/bash
+
+GIT_ROOT=$(git root)
+HOOK_NAME="$1"
+
+SRC_DIR="~/.githooks/"
+
+if [[ -z "$HOOK_NAME" ]]; then
+    echo "Hooks available:"
+    ls -l1 $SRC_DIR
+    exit 0
+fi
+
+RELATIVE_PATH="$SRC_DIR/$HOOK_NAME"
+ABSOLUTE_PATH=$(greadlink -f "$RELATIVE_PATH")
+if [[ -x "$ABSOLUTE_PATH" ]]; then
+    ln -s "$ABSOLUTE_PATH" "$GIT_ROOT/.git/hooks/$HOOK_NAME"
+fi
