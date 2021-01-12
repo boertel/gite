@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+set -eo pipefail
 
 REPO=$(git name)
 NAME=$(echo "$REPO" | cut -d "/" -f "2-")
@@ -18,7 +20,7 @@ if [[ "$1" == '--' ]]; then shift; fi
 
 VERSION=$1
 if [[ -z "$VERSION" ]]; then
-    VERSION="latest"
+    VERSION=$(git release --get)
 fi
 
 function config {
@@ -38,7 +40,7 @@ function config {
 
 TARBALL_URL="$GITHUB_URL/archive/$VERSION.tar.gz"
 
-SHA=$(curl -Ls $TARBALL_URL | openssl dgst -sha256 | cut -d " " -f 2)
+SHA=$(curl --fail -Ls $TARBALL_URL | openssl dgst -sha256 | cut -d " " -f 2)
 
 CLEAN_NAME="$(tr -d "-" <<< $NAME)"
 NAME="$(tr '[:lower:]' '[:upper:]' <<< ${CLEAN_NAME:0:1})${CLEAN_NAME:1}"

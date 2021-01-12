@@ -13,6 +13,16 @@ git fetch --tags 2> /dev/null
 LAST_VERSION=$(git describe --abbrev=0 --tags --match="v*" 2> /dev/null)
 VERSION=$(echo "$LAST_VERSION" | tr -d "v")
 
+
+while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
+  -g | --get )
+    echo $LAST_VERSION
+    exit 0
+    ;;
+esac; shift; done
+if [[ "$1" == '--' ]]; then shift; fi
+
+
 NEXT_VERSION="v$(bump "$NEXT" "$VERSION")"
 if [[ $? != 0 ]]; then
     exit 1
