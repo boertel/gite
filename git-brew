@@ -10,9 +10,13 @@ GITROOT="$(git root)"
 
 
 WRITE=0
+PUBLISH=0
 while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
   -w | --write )
     WRITE=1
+    ;;
+  -p | --publish )
+    PUBLISH=1
     ;;
 esac; shift; done
 if [[ "$1" == '--' ]]; then shift; fi
@@ -75,17 +79,21 @@ end
 EOF
 )
 
-if [[ $WRITE == 0 ]]; then
+if [[ $WRITE -eq 0 ]]; then
     echo "$STDOUT"
 else
     # extend $HOME
     HOMEBREW_TAP="$(eval "echo $(git config --get gite.brew)")"
     if [[ -d "$HOMEBREW_TAP" ]]; then
-        echo "$STDOUT" > "$HOMEBREW_TAP/$(git name | cut -d "/" -f 2).rb"
+        TAP_NAME=$(git name | cut -d "/" -f 2)
+        TAB_FILE="$TAP_NAME.rb"
+        echo "$STDOUT" > "$HOMEBREW_TAP/$TAB_FILE"
+        if [[ $PUBLISH -eq 1 ]]; then
+            BREW_MESSAGE="Updating $TAP_NAME"
+            cd "$HOMEBREW_TAP" && git add "$TAB_FILE" && git commit -m "$BREW_MESSAGE" && git push
+        fi
     else
         echo "cannot find $HOMEBREW_TAP"
         exit 1
     fi
 fi
-
-
