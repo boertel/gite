@@ -6,6 +6,16 @@ NAME=$(echo "$REPO" | cut -d "/" -f "2-")
 GITHUB_URL="https://$(git url)"
 GITROOT="$(git root)"
 
+
+WRITE=0
+while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
+  -w | --write )
+    WRITE=1
+    ;;
+esac; shift; done
+if [[ "$1" == '--' ]]; then shift; fi
+
+
 VERSION=$1
 if [[ -z "$VERSION" ]]; then
     VERSION="latest"
@@ -46,9 +56,7 @@ if [[ -z "$INSTALL" ]]; then
     fi
 fi
 
-TEMPLATE=$(config "template")
-
-cat << EOF | m4 -DNAME="$NAME" -DDESCRIPTION="$DESCRIPTION" -DHOMEPAGE="$HOMEPAGE" -DURL="$URL" -DHEAD="$HEAD" -DINSTALL="$INSTALL" -DSHA="$SHA"
+STDOUT=$(cat << EOF | m4 -DNAME="$NAME" -DDESCRIPTION="$DESCRIPTION" -DHOMEPAGE="$HOMEPAGE" -DURL="$URL" -DHEAD="$HEAD" -DINSTALL="$INSTALL" -DSHA="$SHA"
 class NAME < Formula
     desc "DESCRIPTION"
     homepage "HOMEPAGE"
@@ -63,3 +71,19 @@ class NAME < Formula
     end
 end
 EOF
+)
+
+if [[ $WRITE == 0 ]]; then
+    echo "$STDOUT"
+else
+    # extend $HOME
+    HOMEBREW_TAP="$(eval "echo $(git config --get gite.brew)")"
+    if [[ -d "$HOMEBREW_TAP" ]]; then
+        echo "$STDOUT" > "$HOMEBREW_TAP/$(git name | cut -d "/" -f 2).rb"
+    else
+        echo "cannot find $HOMEBREW_TAP"
+        exit 1
+    fi
+fi
+
+
