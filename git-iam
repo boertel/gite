@@ -1,49 +1,20 @@
 #!/bin/bash
 
-SETTINGS_FILE=~/.git-iam
-WRITE=1
-
 GLOBAL=$(git config --global user.email)
+EMAIL=$(git config user.email)
+KEY="iam.$1"
 
-
-function read_settings {
-    GREP=$(grep "\(.*\)=$1" -- $SETTINGS_FILE)
-    USERNAME=$(echo $GREP | sed -e "s/=$1//g")
-    echo $USERNAME
-}
-
-
-if [[ -z "$1" ]]; then
-    # no arguments. who am i on the repo? local > global (read)
-    EMAIL=$(git config user.email)
-    WRITE=0
-elif [[ $1 == *@* ]]; then
-    # write with an email address
-    EMAIL=$1
-else
-    # write with settings file
-    if [[ -e $SETTINGS_FILE ]]; then
-        GREP=$(grep "^$1=\(.*\)$" -- $SETTINGS_FILE)
-        if [[ -z $GREP ]]; then
-            echo "$1 is not setup in $SETTINGS_FILE"
-            exit 1
-        else
-            EMAIL=$(echo $GREP | sed -e "s/^$1=//g")
-        fi
-    else
-        echo "$SETTINGS_FILE doesn't exist."
-        exit 1
-    fi
-fi
-
-USERNAME=$(read_settings $EMAIL)
-echo "This repository is now using: $EMAIL ($USERNAME)"
-
-# do the actual write on git
-if [[ $WRITE = 1 ]]; then
+if [[ -n "$2" ]]; then
+    echo "git config --add $KEY $2"
+elif [[ -n "$1" ]]; then
+    EMAIL="$(git config --get $KEY)"
     if [[ "$GLOBAL" = "$EMAIL" ]]; then
         git config --local --unset user.email
     else
         git config --local user.email $EMAIL
     fi
 fi
+
+ALIAS=$(git config --get-regexp iam | grep "$EMAIL" | cut -d " " -f 1 | sed -e 's/^iam\.//')
+
+echo "This repository is now using: $EMAIL ($ALIAS)"
