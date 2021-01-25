@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+
+for TODO in $(git grep -n "TODO" | cut -d ":" -f 1,2 ); do
+    FILE_PATH=$(echo $TODO | cut -d ":" -f 1)
+    LINE=$(echo $TODO | cut -d ":" -f 2)
+
+    git blame -L $LINE $FILE_PATH
+done
