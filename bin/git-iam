@@ -4,17 +4,30 @@ GLOBAL=$(git config --global user.email)
 EMAIL=$(git config user.email)
 KEY="iam.$1"
 
+# Create a key
+# $ gpg --gen-key
+# KEY will be on the line under: `pub   rsa3072 ....`
+
+# Export key
+# $ gpg --armor --export <KEY>
+
 if [[ -n "$2" ]]; then
     echo "git config --add $KEY $2"
 elif [[ -n "$1" ]]; then
-    EMAIL="$(git config --get $KEY)"
+    VALUE="$(git config --get $KEY)"
+    echo $VALUE
+    EMAIL="$(echo "$VALUE" | cut -d : -f 1)"
+    SIGNING_KEY="$(echo "$VALUE" | cut -d : -f 2)"
     if [[ "$GLOBAL" = "$EMAIL" ]]; then
         git config --local --unset user.email
+        git config --local --unset user.signingKey
     else
         git config --local user.email $EMAIL
+        git config --local user.signingKey $SIGNING_KEY
     fi
 fi
 
 ALIAS=$(git config --get-regexp iam | grep "$EMAIL" | cut -d " " -f 1 | sed -e 's/^iam\.//')
+SIGNED=$(git config user.signingKey &> /dev/null && echo "✅")
 
-echo "This repository is now using: $EMAIL ($ALIAS)"
+echo "This repository is now using: $EMAIL ($ALIAS) $SIGNED"
