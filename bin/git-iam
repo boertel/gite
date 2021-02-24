@@ -14,19 +14,23 @@ KEY="iam.$1"
 if [[ -n "$2" ]]; then
     echo "git config --add $KEY $2"
 elif [[ -n "$1" ]]; then
-    VALUE="$(git config --get $KEY)"
-    EMAIL="$(echo "$VALUE" | cut -d : -f 1)"
-    SIGNING_KEY="$(echo "$VALUE" | cut -d : -f 2)"
-    if [[ "$GLOBAL" = "$EMAIL" ]]; then
-        git config --local --unset user.email
-        git config --local --unset user.signingKey
+    if VALUE="$(git config --get $KEY)"; then
+        EMAIL="$(echo "$VALUE" | cut -d : -f 1)"
+        SIGNING_KEY="$(echo "$VALUE" | cut -d : -f 2)"
+        if [[ "$GLOBAL" = "$EMAIL" ]]; then
+            git config --local --unset user.email
+            git config --local --unset user.signingKey
+        else
+            git config --local user.email $EMAIL
+            git config --local user.signingKey $SIGNING_KEY
+        fi
     else
-        git config --local user.email $EMAIL
-        git config --local user.signingKey $SIGNING_KEY
+        echo "$1 not found"
+        exit 1
     fi
 fi
 
 ALIAS=$(git config --get-regexp iam | grep "$EMAIL" | cut -d " " -f 1 | sed -e 's/^iam\.//')
 SIGNED=$(git config user.signingKey &> /dev/null && echo "✅")
 
-echo "This repository is now using: $EMAIL ($ALIAS) $SIGNED"
+echo "$EMAIL $ALIAS $SIGNED"
