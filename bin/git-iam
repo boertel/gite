@@ -15,7 +15,6 @@ if [[ -n "$2" ]]; then
     echo "git config --add $KEY $2"
 elif [[ -n "$1" ]]; then
     VALUE="$(git config --get $KEY)"
-    echo $VALUE
     EMAIL="$(echo "$VALUE" | cut -d : -f 1)"
     SIGNING_KEY="$(echo "$VALUE" | cut -d : -f 2)"
     if [[ "$GLOBAL" = "$EMAIL" ]]; then
