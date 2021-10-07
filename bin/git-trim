@@ -4,13 +4,28 @@ YELLOW="\033[0;33m"
 NO_COLOR="\033[0m"
 
 
+SORT="-committerdate"
+DRY_RUN=0
+IGNORE_PATTERN=""
+
+while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
+  --older-first )
+    SORT="committerdate"
+    ;;
+  -i | --ignore )
+    shift; IGNORE_PATTERN=$1
+    ;;
+  --dry-run )
+    DRY_RUN=1
+esac; shift; done
+
+
 CURRENT_BRANCH="$(git branch --show-current)"
 DEFAULT_BRANCH="$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')"
 
 LOG_FORMAT='%h (%cD) %an    %s %d'
 
 FORMAT='%(refname:short): %(contents:subject) – %(committerdate:relative) by <%(authorname)>'
-SORT="committerdate"
 
 IFS=$'\n'
 for BRANCH in $(git branch  --sort="$SORT" --verbose --format="$FORMAT"); do
@@ -23,6 +38,10 @@ for BRANCH in $(git branch  --sort="$SORT" --verbose --format="$FORMAT"); do
     fi
     if [[ "$BRANCH_NAME" == "$DEFAULT_BRANCH" ]]; then
         echo -e "skipping default branch: $BRANCH_NAME"
+        continue
+    fi
+    if [[ -n "$IGNORE_PATTERN" && "$BRANCH_NAME" =~ "$IGNORE_PATTERN" ]]; then
+        echo -e "skipping ignored branch: $BRANCH_NAME"
         continue
     fi
     echo -e "\n${YELLOW}$BRANCH_NAME${NO_COLOR}:$BRANCH_MESSAGE"
@@ -54,7 +73,12 @@ for BRANCH in $(git branch  --sort="$SORT" --verbose --format="$FORMAT"); do
         esac
         if [[ -n "$CMD" ]]; then
             echo $CMD
-            eval $CMD
+            if [[ $DRY_RUN -ne 0 ]]; then
+                eval $CMD
+                if [[ $? -ne 0 ]]; then
+                    CONTINUE=1
+                fi
+            fi
         fi
     done
 
