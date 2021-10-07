@@ -1,0 +1,61 @@
+#!/bin/bash
+
+YELLOW="\033[0;33m"
+NO_COLOR="\033[0m"
+
+
+CURRENT_BRANCH="$(git branch --show-current)"
+DEFAULT_BRANCH="$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')"
+
+LOG_FORMAT='%h (%cD) %an    %s %d'
+
+FORMAT='%(refname:short): %(contents:subject) – %(committerdate:relative) by <%(authorname)>'
+SORT="committerdate"
+
+IFS=$'\n'
+for BRANCH in $(git branch  --sort="$SORT" --verbose --format="$FORMAT"); do
+    BRANCH_NAME=$(echo "$BRANCH" | cut -d ":" -f 1)
+    BRANCH_MESSAGE=$(echo "$BRANCH" | cut -d ":" -f 2-)
+
+    if [[ "$BRANCH_NAME" == "$CURRENT_BRANCH" ]]; then
+        echo -e "skipping current branch: $BRANCH_NAME"
+        continue
+    fi
+    if [[ "$BRANCH_NAME" == "$DEFAULT_BRANCH" ]]; then
+        echo -e "skipping default branch: $BRANCH_NAME"
+        continue
+    fi
+    echo -e "\n${YELLOW}$BRANCH_NAME${NO_COLOR}:$BRANCH_MESSAGE"
+
+    CONTINUE=1
+    while [[ $CONTINUE -eq 1 ]]; do
+        CMD=""
+        CONTINUE=0
+        echo -n "[d]elete? show [l]ogs? [c]ontinue? "
+        read ANSWER
+        case "$ANSWER" in
+            "d")
+                CMD="git branch -d $BRANCH_NAME"
+                ;;
+            "D")
+                CMD="git branch -D $BRANCH_NAME"
+                ;;
+            "l")
+                CMD="git log --pretty=format:'${LOG_FORMAT}' --abbrev-commit -n 10 $BRANCH_NAME"
+                CONTINUE=1
+                ;;
+            "c")
+                echo "continue..."
+                CONTINUE=0
+                ;;
+             *)
+                CONTINUE=1
+                ;;
+        esac
+        if [[ -n "$CMD" ]]; then
+            echo $CMD
+            eval $CMD
+        fi
+    done
+
+done
