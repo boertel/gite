@@ -73,7 +73,7 @@ for BRANCH in $(git branch  --sort="$SORT" --verbose --format="$FORMAT"); do
         esac
         if [[ -n "$CMD" ]]; then
             echo $CMD
-            if [[ $DRY_RUN -ne 0 ]]; then
+            if [[ $DRY_RUN -eq 0 ]]; then
                 eval $CMD
                 if [[ $? -ne 0 ]]; then
                     CONTINUE=1
