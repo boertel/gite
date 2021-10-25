@@ -11,12 +11,16 @@ GITROOT="$(git root)"
 
 WRITE=0
 PUBLISH=0
+SKIP_TARBALL=0
 while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
   -w | --write )
     WRITE=1
     ;;
   -p | --publish )
     PUBLISH=1
+    ;;
+  --skip-tarball )
+    SKIP_TARBALL=1
     ;;
 esac; shift; done
 if [[ "$1" == '--' ]]; then shift; fi
@@ -44,7 +48,10 @@ function config {
 
 TARBALL_URL="$GITHUB_URL/archive/$VERSION.tar.gz"
 
-SHA=$(curl --fail -Ls $TARBALL_URL | openssl dgst -sha256 | cut -d " " -f 2)
+if [[ $SKIP_TARBALL -eq 0 ]]; then
+    echo "$SKIP_TARBALL"
+    SHA=$(curl --fail -Ls $TARBALL_URL | openssl dgst -sha256 | cut -d " " -f 2)
+fi
 
 CLEAN_NAME="$(tr -d "-" <<< $NAME)"
 NAME="$(tr '[:lower:]' '[:upper:]' <<< ${CLEAN_NAME:0:1})${CLEAN_NAME:1}"
@@ -54,6 +61,8 @@ HOMEPAGE=$(config "homepage" $GITHUB_URL)
 URL=$TARBALL_URL
 HEAD=$GITHUB_URL".git"
 INSTALL=$(config "install")
+#echo -e $INSTALL  | tr "\n" "[:space:]"
+
 
 if [[ -z "$INSTALL" ]]; then
     # try to infer what to do
@@ -62,18 +71,16 @@ if [[ -z "$INSTALL" ]]; then
     fi
 fi
 
-STDOUT=$(cat << EOF | m4 -DNAME="$NAME" -DDESCRIPTION="$DESCRIPTION" -DHOMEPAGE="$HOMEPAGE" -DURL="$URL" -DHEAD="$HEAD" -DINSTALL="$INSTALL" -DSHA="$SHA"
-class NAME < Formula
-    desc "DESCRIPTION"
-    homepage "HOMEPAGE"
-    url "URL"
-    sha256 "SHA"
-    head "HEAD"
-
-    bottle :unneeded
+STDOUT=$(cat << EOF
+class $NAME < Formula
+    desc "$DESCRIPTION"
+    homepage "$HOMEPAGE"
+    url "$URL"
+    sha256 "$SHA"
+    head "$HEAD"
 
     def install
-        INSTALL
+$(echo -e "$INSTALL" | sed -e "s#^#        #g")
     end
 end
 EOF
