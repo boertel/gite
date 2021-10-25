@@ -49,7 +49,6 @@ function config {
 TARBALL_URL="$GITHUB_URL/archive/$VERSION.tar.gz"
 
 if [[ $SKIP_TARBALL -eq 0 ]]; then
-    echo "$SKIP_TARBALL"
     SHA=$(curl --fail -Ls $TARBALL_URL | openssl dgst -sha256 | cut -d " " -f 2)
 fi
 
@@ -61,7 +60,6 @@ HOMEPAGE=$(config "homepage" $GITHUB_URL)
 URL=$TARBALL_URL
 HEAD=$GITHUB_URL".git"
 INSTALL=$(config "install")
-#echo -e $INSTALL  | tr "\n" "[:space:]"
 
 
 if [[ -z "$INSTALL" ]]; then
