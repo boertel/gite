@@ -34,7 +34,7 @@ fi
 function config {
     BREW_FILE=$GITROOT/.brew
     # default value
-    VALUE=$2
+    VALUE="$2"
     if [ -f "$BREW_FILE" ]; then
         FOUND=$(grep -i "^$1=" -- $BREW_FILE)
         # found the config in the file
@@ -43,6 +43,18 @@ function config {
         fi
     fi
     echo $VALUE
+}
+
+function def {
+    if [[ -z "$2" ]]; then
+        echo -ne ""
+    else
+        NAME="$1"
+        CONTENT=$(echo -e "$2" | sed -e "s#^#        #g")
+        PREFIX="$3"
+        SUFFIX="$4"
+        echo -e "\n    def $NAME\n${PREFIX}${CONTENT}${SUFFIX}\n    end"
+    fi
 }
 
 
@@ -60,6 +72,11 @@ HOMEPAGE=$(config "homepage" $GITHUB_URL)
 URL=$TARBALL_URL
 HEAD=$GITHUB_URL".git"
 INSTALL=$(config "install")
+CAVEATS=$(config "caveats")
+if [[ -n "$CAVEATS" ]]; then
+    CAVEATS="    $CAVEATS"
+fi
+
 
 
 if [[ -z "$INSTALL" ]]; then
@@ -76,10 +93,8 @@ class $NAME < Formula
     url "$URL"
     sha256 "$SHA"
     head "$HEAD"
-
-    def install
-$(echo -e "$INSTALL" | sed -e "s#^#        #g")
-    end
+$(def "install" "$INSTALL")
+$(def "caveats" "$CAVEATS" "        <<~EOS\n" "\n        EOS")
 end
 EOF
 )
