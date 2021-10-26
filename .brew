@@ -1,1 +1,1 @@
-install=bin.install Dir["bin/*"]
+install=bin.install Dir["bin/*"]\nshare.install "githooks"
