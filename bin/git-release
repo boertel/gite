@@ -32,7 +32,7 @@ if [[ ( -z "$MESSAGE" ) || ( "$MESSAGE" == "auto" ) ]]; then
     MESSAGE=$(git log $LAST_VERSION..HEAD --no-merges --oneline | cut -d " " -f "2-" | sed -e 's/^/- /')
 fi
 
-git hook pre-release $NEXT_VERSION $LAST_VERSION ${@:3}
+git hook run --ignore-missing pre-release -- $NEXT_VERSION $LAST_VERSION ${@:3}
 if [[ $? != 0 ]]; then
     echo "exit because pre-release exit with $?"
     exit 1
@@ -85,5 +85,5 @@ elif [[ "$GIT_HOST" == "gitlab.com" && -n "$GITLAB_TOKEN" ]]; then
     fi
 fi
 
-git hook post-release "$NEXT_VERSION" "$LAST_VERSION"
+git hook run --ignore-missing post-release -- "$NEXT_VERSION" "$LAST_VERSION"
 
